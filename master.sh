@@ -5,7 +5,7 @@ PATH=$PATH:/c/Program\ Files/R/R-3.6.1/bin
 #need to know where a writable R package library is housed on this computer
 #(can find in an R GUI by entering .libPaths() into the command line
 export R_LIBS="C:/Users/artrw/Documents/R/win-library/3.6"
-Rscript data_clean.R
+Rscript analysis.R
 #the sed commands take stargazer output, replace textstrings "onestar", "twostar", "threestar", and "dollarsign"
 #with "^{*}", "^{**}", "^{***}", and "$" respectively for appropriate LaTeX reading (jury rigged, I know...)
 #also removes all formatting from the table so that only the body content is imported to the TeX file, where it
@@ -21,14 +21,31 @@ sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g
 D6Var_firms=`sed -n '10p' < tables/D6VAR_raw.tex`
 sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D6VAR_raw.tex > tables/D6VAR_edited.tex
 sed -i "1 i\ $D6Var_firms\\\\\\\\ \\\hline" tables/D6VAR_edited.tex
-sed -i '8 i\ \\hline' tables/D6VAR_edited.tex
+sed -i '7 i\ \\hline' tables/D6VAR_edited.tex
 
 D5Var_firms=`sed -n '10p' < tables/D5VAR_raw.tex`
 sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D5VAR_raw.tex > tables/D5VAR_edited.tex
 sed -i "1 i\ $D5Var_firms\\\\\\\\ \\\hline" tables/D5VAR_edited.tex
-sed -i '10 i\ \\hline' tables/D5VAR_edited.tex
+sed -i '9 i\ \\hline' tables/D5VAR_edited.tex
 
 D4Var_firms=`sed -n '10p' < tables/D4VAR_raw.tex`
 sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D4VAR_raw.tex > tables/D4VAR_edited.tex
 sed -i "1 i\ $D4Var_firms\\\\\\\\ \\\hline" tables/D4VAR_edited.tex
-sed -i '8 i\ \\hline' tables/D4VAR_edited.tex
+sed -i '7 i\ \\hline' tables/D4VAR_edited.tex
+
+D6Var6lags_firms=`sed -n '10p' < tables/D6VAR6lags_raw.tex`
+sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D6VAR6lags_raw.tex > tables/D6VAR6lags_edited.tex
+sed -i "1 i\ $D6Var_firms\\\\\\\\ \\\hline" tables/D6VAR6lags_edited.tex
+sed -i '9 i\ \\hline' tables/D6VAR6lags_edited.tex
+
+D5Var6lags_firms=`sed -n '10p' < tables/D5VAR6lags_raw.tex`
+sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D5VAR6lags_raw.tex > tables/D5VAR6lags_edited.tex
+sed -i "1 i\ $D5Var_firms\\\\\\\\ \\\hline" tables/D5VAR6lags_edited.tex
+sed -i '9 i\ \\hline' tables/D5VAR6lags_edited.tex
+
+D4Var6lags_firms=`sed -n '10p' < tables/D4VAR6lags_raw.tex`
+sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D4VAR6lags_raw.tex > tables/D4VAR6lags_edited.tex
+sed -i "1 i\ $D4Var_firms\\\\\\\\ \\\hline" tables/D4VAR6lags_edited.tex
+sed -i '9 i\ \\hline' tables/D4VAR6lags_edited.tex
+
+pdflatex draft.tex

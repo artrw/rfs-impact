@@ -1,3 +1,7 @@
+#system's location for Ghostscript--leaving this blank is fine; it just embeds
+#fonts for LaTeX figures; figures will just be slightly uglier without it
+Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.50/bin/gswin64c.exe")
+
 
 #check if tidyverse and stargazer are installed; loads
 if (!require(tidyverse)) install.packages("tidyverse")
@@ -30,17 +34,28 @@ colnames(petroStocks)[1] <- "Date"
 petroStocks <- mutate(petroStocks, Date=mdy(Date))
 
 #import covariate data
-RUS3000 <- read.csv(file="raw_Data/rus3000_finaeon_readable.csv",
+RUS3000 <- read.csv(file="raw_data/rus3000_finaeon_readable.csv",
                     header=TRUE)
 colnames(RUS3000)[1] <- "Date"
 RUS3000 <- mutate(RUS3000, Date=mdy(Date))
+WTI <- read.csv(file="raw_data/wti_finaeon_readable.csv", header=TRUE)
+colnames(WTI)[1] <- "Date"
+WTI <- mutate(WTI, Date=mdy(Date))
 
 #join together RIN, stock, and covariate data
 data2013 <- left_join(rins2013, petroStocks, by="Date")
 data2015 <- left_join(rins2015, petroStocks, by="Date")
 data2013 <- left_join(data2013, RUS3000, by="Date")
 data2015 <- left_join(data2015, RUS3000, by="Date")
-rm(rins2013, rins2015, petroStocks, RUS3000)
+data2013 <- left_join(data2013, WTI, by="Date")
+data2015 <- left_join(data2015, WTI, by="Date")
+rm(rins2013, rins2015, petroStocks, RUS3000, WTI)
+
+#Backfilling two NAs in RUS3000 data
+data2015$RUS3000[data2015$Date == as.Date("2014-12-31")] <- 
+  data2015$RUS3000[data2015$Date == as.Date("2014-12-30")]
+data2015$RUS3000[data2015$Date == as.Date("2015-01-30")] <- 
+  data2015$RUS3000[data2015$Date == as.Date("2015-01-29")]
 
 #modifying date extent of data
 data2013 <- data2013[data2013$Date < "2014-05-15",]
@@ -328,12 +343,12 @@ EventStudy <- function(data, series, dates, lags=0, poly.order=4, start=NULL,
     }
   }
   if (CI == TRUE) {
-    results <- c(results, paste0("dollarsign(", round(SQ.lower.01, 3), 
+    results <- c(results, paste0("dollarsign(", round(SQ.lower.01, 3), ", ",
                                  round(SQ.upper.01, 3), ")dollarsign"),
-                          paste0("dollarsign(", round(SQ.lower.05, 3), 
+                          paste0("dollarsign(", round(SQ.lower.05, 3), ", ",
                                  round(SQ.upper.05, 3), ")dollarsign"),
-                          paste0("dollarsign(", round(SQ.lower.1, 3), 
-                                 round(SQ.upper.1, 3), ")dollarsign"),
+                          paste0("dollarsign(", round(SQ.lower.1, 3), ", ",
+                                 round(SQ.upper.1, 3), ")dollarsign"), 
                           paste0("dollarsign", length(series), "dollarsign"),
                           paste0("dollarsign", dim(regdata)[1], "dollarsign"))
                           #last two are number of firms and observations
@@ -433,7 +448,7 @@ TimeSeries <- function(data, series, firm, order=NULL, covariates=NULL){
   d.firm   <- data[, colnames(data) == as.character(firm)]
   if (length(covariates) > 0){
     d.covariates <- data[, colnames(data) %in% covariates]
-    x <- cbind(d.series, d.firm, covariates)
+    x <- cbind(d.series, d.firm, d.covariates)
     colnames(x) <- c(series, firm, covariates)
   } else {
     x <- cbind(d.series, d.firm)
@@ -442,29 +457,23 @@ TimeSeries <- function(data, series, firm, order=NULL, covariates=NULL){
   xdiff <- diff(x)
   if (is.null(order)){
     ord <- VARselect(xdiff, type="const")
-    ord.choice <<- ord$selection[1] #using AIC (BIC not available)
-    print(ord.choice)
-    ord.choice <<- max(ord.choice, 2) #COME BACK TO THIS!!
-    print(ord.choice)
-    
-    ###
-    ### ^ WHAT IS THIS ACTUALLY DOING??
-    ###
-    
+    ord.choice <<- unname(ord$selection[1])
+    #using AIC (BIC not available)
   } else {
     ord.choice <<- order
   } #ord.choice must be assigned to global evn b/c of scoping error in {vars}
   model <- VAR(xdiff, p=ord.choice, type="const")
-  rm(ord.choice, pos=".GlobalEnv")
   return(model)
 }
-TimeSeriesTable <- function(data, rin, firms, lags=10, covariates=NULL){
+TimeSeriesTable <- function(data, rin, firms, lags=10, order=NULL, 
+                            covariates=NULL){
   results <- data.frame(matrix(NA, ncol=length(firms), nrow=lags+5))
   colnames(results) <- firms
   rownames(results) <- c("Constant", paste("Lag", 1:lags), "N", "Ljung-Box",
                          "Jarque-Bera", "Shapiro-Wilk")
   for (i in 1:length(firms)){
-    model <- TimeSeries(data, rin, firms[i], order=NULL, covariates=covariates)
+    model <- TimeSeries(data, rin, firms[i], order=order, covariates=covariates)
+    varnum <- 2 + length(covariates)
     evaltext <- paste0("summary(model)$varresult$", firms[i], "$coefficients")
     var.results <- eval(parse(text=evaltext))
     results[1, i] <- paste0("dollarsign", round(var.results["const", 1], 3))
@@ -477,14 +486,14 @@ TimeSeriesTable <- function(data, rin, firms, lags=10, covariates=NULL){
     } else {
       results[1, i] <- paste0(results[1, i], "dollarsign")
     }
-    for (n in 1:((nrow(var.results)-1)/2)){
+    for (n in 1:((nrow(var.results)-1)/varnum)){
       results[n+1, i] <- paste0("dollarsign", 
-                                round(var.results[(1+2*(n-1)), 1], 3))
-      if (var.results[(1+2*(n-1)), 4] <= 0.01){
+                                round(var.results[(1+varnum*(n-1)), 1], 3))
+      if (var.results[(1+varnum*(n-1)), 4] <= 0.01){
         results[n+1, i] <- paste0(results[n+1, i], "threestardollarsign")
-      } else if (var.results[(1+2*(n-1)), 4] <= 0.05){
+      } else if (var.results[(1+varnum*(n-1)), 4] <= 0.05){
         results[n+1, i] <- paste0(results[n+1, i], "twostardollarsign")
-      } else if (var.results[(1+2*(n-1)), 4] <= 0.1){
+      } else if (var.results[(1+varnum*(n-1)), 4] <= 0.1){
         results[n+1, i] <- paste0(results[n+1, i], "onestardollarsign")
       } else {
         results[n+1, i] <- paste0(results[n+1, i], "dollarsign")
@@ -537,24 +546,122 @@ stargazer(TimeSeriesTable(data2015, "D5", petroTickers, lags=6),
 stargazer(TimeSeriesTable(data2015, "D4", petroTickers, lags=4),
           summary=FALSE, type="latex", out="tables/D4VAR_raw.tex")
 
+stargazer(TimeSeriesTable(data2015, "D6", petroTickers, lags=6, order=6),
+          summary=FALSE, type="latex", out="tables/D6VAR6lags_raw.tex")
+stargazer(TimeSeriesTable(data2015, "D5", petroTickers, lags=6, order=6),
+          summary=FALSE, type="latex", out="tables/D5VAR6lags_raw.tex")
+stargazer(TimeSeriesTable(data2015, "D4", petroTickers, lags=6, order=6),
+          summary=FALSE, type="latex", out="tables/D4VAR6lags_raw.tex")
+
+
+if(!require(extrafont)) install.packages("extrafont")
+library(extrafont)
+if(!require(fontcm)) install.packages("fontcm")
+library(fontcm)
+font_install('fontcm')
+loadfonts(device="win")
+
 #plot of 2015 RIN data
-#pdf("figures/2015RINs.pdf", w=7, h=4)
+pdf("figures/2015RINs.pdf", family="CM Roman", w=6, h=3.5)
 ggplot(data2015, aes(x=Date)) +
   geom_line(aes(y=D6, col="D6")) +
   geom_line(aes(y=D5, col="D5")) +
   geom_line(aes(y=D4, col="D4")) +
   geom_vline(xintercept=c(as.Date("2015-05-29"), as.Date("2015-11-30")),
-             linetype=2) +
-  geom_label(aes(x=as.Date("2015-05-29"), label="May 29", y=1.1), angle=0) +
-  geom_label(aes(x=as.Date("2015-11-30"), label="November 30", y=1.1), 
+             linetype="dotted") +
+  geom_text(aes(x=as.Date("2015-05-29"), label="May 29", y=1.1)) +
+  geom_text(aes(x=as.Date("2015-11-30"), label="November 30", y=1.1), 
              angle=0) +
-  labs(y="Price") +
+  labs(y="Price") + 
   scale_y_continuous(breaks=c(.5, 1, 1.5), label=c("$0.50", "$1.00", "$1.50")) +
   scale_x_date(breaks=c(as.Date("2015-01-01"), as.Date("2016-01-01")),
                     label=c("2015", "2016")) +
-  scale_color_manual(name = "RIN Series", values = c("D6"="Black", "D5"="Blue",
-                                                     "D4"="Red")) +
-  theme(legend.position = c(0.7, 0.1)) +
-  theme_classic()
-#dev.off()
+  scale_color_manual(name = "RIN Legend", values = c("D6"="Black", "D5"="Blue",
+                                                     "D4"="Red"),
+                     guide = guide_legend(reverse=TRUE)) +
+  theme(text=element_text(size=11, family='CM Roman', face="plain"), 
+        axis.text=element_text(size=11),
+        legend.justification=c(1, 0),
+        legend.position = c(0.95, 0.05),
+        panel.background = element_blank(),
+        axis.line=element_line(color="Black"),
+        legend.key=element_blank())
+dev.off()
+embed_fonts("figures/2015RINs.pdf")
 
+
+#plot of 2013 RIN data
+pdf("figures/2013RINs.pdf", family="CM Roman", w=6, h=3.5)
+ggplot(data2013, aes(x=Date)) +
+  geom_line(aes(y=D6, col="D6")) +
+  geom_line(aes(y=D5, col="D5")) +
+  geom_line(aes(y=D4, col="D4")) +
+  geom_vline(xintercept=c(as.Date("2013-08-06"), as.Date("2013-10-11"),
+                          as.Date("2013-11-15")), linetype="dotted") +
+  geom_text(aes(x=as.Date("2013-08-06"), label="August 6", y=1.6), angle=20) +
+  geom_text(aes(x=as.Date("2013-10-11"), label="October 11", y=1.56), angle=20) +
+  geom_text(aes(x=as.Date("2013-11-15"), label="November 15", y=1.51), 
+             angle=20) +
+  labs(y="Price") + 
+  scale_y_continuous(breaks=c(.5, 1, 1.5), label=c("$0.50", "$1.00", "$1.50")) +
+  scale_x_date(breaks=c(as.Date("2013-01-01"), as.Date("2014-01-01")),
+               label=c("2013", "2014")) +
+  scale_color_manual(name = "RIN Legend", values = c("D6"="Black", "D5"="Blue",
+                                                     "D4"="Red"),
+                     guide = guide_legend(reverse=TRUE)) +
+  theme(text=element_text(size=11, family='CM Roman', face="plain"), 
+        axis.text=element_text(size=11),
+        legend.justification=c(1, 0),
+        legend.position = c(0.95, 0.05),
+        panel.background = element_blank(),
+        axis.line=element_line(color="Black"),
+        legend.key=element_blank())
+dev.off()
+embed_fonts("figures/2013RINs.pdf")
+
+IrfMaker <- function(data, rin, firm, n.ahead=20){
+  irf <- irf(TimeSeries(data, rin, firm), n.ahead=n.ahead)
+  data.frame(point=eval(parse(text=paste0("irf$irf$", rin, "[, 2]"))),
+             lower=eval(parse(text=paste0("irf$Lower$", rin, "[, 2]"))),
+             upper=eval(parse(text=paste0("irf$Upper$", rin, "[, 2]")))) %>%
+    ggplot(aes(x=0:n.ahead)) +
+      geom_line(aes(y=point), color="Black") +
+      geom_line(aes(y=lower), color="Red") +
+      geom_line(aes(y=upper), color="Red") +
+      geom_ribbon(aes(x=0:n.ahead, ymax=upper, ymin=lower, 
+                      fill="Red", alpha=.1)) +
+      geom_hline(yintercept=0, color="Black") +
+      labs(y=firm, x="Lags") +
+      theme(text=element_text(size=8, family='CM Roman', face="plain"), 
+            axis.text=element_text(size=8),
+            axis.title=element_text(size=8),
+            panel.background = element_blank(),
+            axis.line=element_line(color="Black"),
+            legend.position="none")
+  
+}
+
+for (firm in petroTickers){
+  path <- paste0("figures/IRFD5", firm, ".pdf")
+  pdf(path, family="CM Roman", w=3, h=2)
+  plot(IrfMaker(data2015, "D5", firm))
+  dev.off()
+  embed_fonts(path)
+  rm(path)
+}
+
+#Robustness checks mentioned but not reported
+EventStudy(data2015, c("CVX", "XOM", "TOT", "BP", "RDS.A"),
+           dates2015, lags=6, poly.order=4, 
+           covariates="WTI", monthday=TRUE, CI=TRUE)
+EventStudy(data2015, c("VLO", "MPC", "PSX"),
+           dates2015, lags=6, poly.order=4, 
+           covariates="WTI", monthday=TRUE, CI=TRUE)
+EventStudy(data2015, c("CG", "WNR", "HFC", "ANDV"),
+           dates2015, lags=6, poly.order=4, 
+           covariates="WTI", monthday=TRUE, CI=TRUE)
+EventStudy(data2015, petroTickers, 
+           dates2015, lags=6, poly.order=4,  
+           covariates="WTI", monthday=TRUE, CI=TRUE)
+TimeSeriesTable(data2015, "D5", petroTickers, order=6, covariates="RUS3000")
+TimeSeriesTable(data2015, "D5", petroTickers, order=6, covariates="WTI")
