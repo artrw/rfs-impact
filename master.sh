@@ -49,3 +49,5 @@ sed -i "1 i\ $D4Var_firms\\\\\\\\ \\\hline" tables/D4VAR6lags_edited.tex
 sed -i '9 i\ \\hline' tables/D4VAR6lags_edited.tex
 
 pdflatex draft.tex
+bibtex draft
+pdflatex draft.tex
