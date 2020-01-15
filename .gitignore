@@ -3,11 +3,15 @@
 .RData
 .Ruserdata
 /raw_data/**
+!/raw_data/.gitkeep
 /tables/**
+!/tables/.gitkeep
 /figures/**
+!/figures/.gitkeep
 draft.aux
 draft.bbl
 draft.blg
 draft.txt
 draft.out
 draft.pdf
+draft.log
