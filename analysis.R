@@ -360,7 +360,8 @@ EventStudy <- function(data, series, dates, lags=0, poly.order=4, start=NULL,
 }
 stargazer(cbind(c("Lag 0", "Lag 1", "Lag 2", "Lag 3", "Lag 4", "Lag 5", "Lag 6",
                   "Lag 0", "Lag 1", "Lag 2", "Lag 3", "Lag 4", "Lag 5", "Lag 6",
-                  "SQ 1% Bounds", "SQ 5% Bounds", "SQ 10% Bounds", "Firms", "N"),
+                  "SQ 1% Bounds", "SQ 5% Bounds", "SQ 10% Bounds", "Firms", 
+                  "Observations"),
                 EventStudy(data2015, c("CVX", "XOM", "TOT", "BP", "RDS.A"),
                     dates2015, lags=6, poly.order=4, 
                     covariates="RUS3000", monthday=TRUE, CI=TRUE),
@@ -469,8 +470,8 @@ TimeSeriesTable <- function(data, rin, firms, lags=10, order=NULL,
                             covariates=NULL){
   results <- data.frame(matrix(NA, ncol=length(firms), nrow=lags+5))
   colnames(results) <- firms
-  rownames(results) <- c("Constant", paste("Lag", 1:lags), "N", "Ljung-Box",
-                         "Jarque-Bera", "Shapiro-Wilk")
+  rownames(results) <- c("Constant", paste("Lag", 1:lags), "Observations", 
+                         "Ljung-Box", "Jarque-Bera", "Shapiro-Wilk")
   for (i in 1:length(firms)){
     model <- TimeSeries(data, rin, firms[i], order=order, covariates=covariates)
     varnum <- 2 + length(covariates)
@@ -612,7 +613,7 @@ ggplot(data2013, aes(x=Date)) +
   theme(text=element_text(size=11, family='CM Roman', face="plain"), 
         axis.text=element_text(size=11),
         legend.justification=c(1, 0),
-        legend.position = c(0.95, 0.05),
+        legend.position = c(0.95, 0.4),
         panel.background = element_blank(),
         axis.line=element_line(color="Black"),
         legend.key=element_blank())
