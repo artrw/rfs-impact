@@ -48,6 +48,16 @@ sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g
 sed -i "1 i\ $D4Var_firms\\\\\\\\ \\\hline" tables/D4VAR6lags_edited.tex
 sed -i '9 i\ \\hline' tables/D4VAR6lags_edited.tex
 
+D5VarRUS30000_firms=`sed -n '10p' < tables/D5VARRUS3000_raw.tex`
+sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D5VARRUS3000_raw.tex > tables/D5VARRUS3000_edited.tex
+sed -i "1 i\ $D5Var_firms\\\\\\\\ \\\hline" tables/D5VARRUS3000_edited.tex
+sed -i '9 i\ \\hline' tables/D5VARRUS3000_edited.tex
+
+D5VarWTI_firms=`sed -n '10p' < tables/D5VARWTI_raw.tex`
+sed 's/onestar/^{*}/g; s/twostar/^{**}/g; s/threestar/^{***}/g; s/dollarsign/$/g; 1,11d; /\\hline \\\\\[-1.8ex\]/,$d' tables/D5VARWTI_raw.tex > tables/D5VARWTI_edited.tex
+sed -i "1 i\ $D5Var_firms\\\\\\\\ \\\hline" tables/D5VARWTI_edited.tex
+sed -i '9 i\ \\hline' tables/D5VARWTI_edited.tex
+
 pdflatex draft.tex
 bibtex draft
 pdflatex draft.tex

@@ -554,6 +554,16 @@ stargazer(TimeSeriesTable(data2015, "D5", petroTickers, lags=6, order=6),
 stargazer(TimeSeriesTable(data2015, "D4", petroTickers, lags=6, order=6),
           summary=FALSE, type="latex", out="tables/D4VAR6lags_raw.tex")
 
+stargazer(TimeSeriesTable(data2015, "D5", petroTickers, lags=6, order=6, 
+          covariates="RUS3000"), summary=FALSE, type="latex", 
+          out="tables/D5VARRUS3000_raw.tex")
+stargazer(TimeSeriesTable(data2015, "D5", petroTickers, lags=6, order=6, 
+          covariates="WTI"), summary=FALSE, type="latex", 
+          out="tables/D5VARWTI_raw.tex")
+
+
+TimeSeriesTable(data2015, "D5", petroTickers, order=6, covariates="WTI")
+
 
 if(!require(extrafont)) install.packages("extrafont")
 library(extrafont)
@@ -651,6 +661,9 @@ for (firm in petroTickers){
   rm(path)
 }
 
+
+
+
 #Robustness checks mentioned but not reported
 EventStudy(data2015, c("CVX", "XOM", "TOT", "BP", "RDS.A"),
            dates2015, lags=6, poly.order=4, 
@@ -664,5 +677,3 @@ EventStudy(data2015, c("CG", "WNR", "HFC", "ANDV"),
 EventStudy(data2015, petroTickers, 
            dates2015, lags=6, poly.order=4,  
            covariates="WTI", monthday=TRUE, CI=TRUE)
-TimeSeriesTable(data2015, "D5", petroTickers, order=6, covariates="RUS3000")
-TimeSeriesTable(data2015, "D5", petroTickers, order=6, covariates="WTI")

@@ -21,7 +21,7 @@
 PhD Student, Department of Agricultural \& Resource Economics, University of California, Berkeley. \href{mailto:arw@berkeley.edu}{\tt arw@berkeley.edu} (corresponding author).}\\
 Sherzod B. Akhundjanov\footnote{Assistant Professor, Department of Applied Economics, Utah State University. \href{matilto:sherzod.akhundjanov@usu.edu}{\tt sherzod.akhundjanov@usu.edu}}}
 
-\date{January 14, 2020}
+\date{January 27, 2020}
 
 \usepackage[longnamesfirst]{natbib}
 \usepackage{amsmath}
@@ -321,13 +321,13 @@ With cointegration results in hand, we model every Firm $\times$ RIN pair using 
 
 \noindent where $\Delta FIRM_t$ and $\Delta RIN_t$ are differenced values for a firm stock price and RIN at time $t$ respectively; $c_i$ is a regression constant $i\in\{1,2\}$; $m$ is the VAR lag length determined based on the Akaike Information Criterion (AIC); each $\phi_{i,j}^l$ is an autoregressive coefficient for the $l$th lag of either $\Delta FIRM_t$ or $\Delta RIN_t$; and $e_{i,t}$ is the VAR error term for $i\in\{1,2\}$. In particular, we are interested in the statistical significance of $\phi_{1,2}^l$, the conditional effect of $\Delta RIN_{t-l}$ on $\Delta FIRM_t$, at all lags against the null hypothesis of $\phi_{1,2}^l=0$. Significance of one or more lags would indicate that there is a feedback relationship between the two series, and hence RIN price changes are associated with subsequent firm stock price changes. 
 
-A few modeling decisions should be explicitly mentioned. First, these models do not include any additional controls. The RIN price system is complex and nonlinear \citep{Serra2011}, and our intent is to determine more generally the presence or absence of any dynamic feedback between RINs and firm prices, not to unravel the complex and interwoven channels through which that feedback occurs. Relevant covariates would almost certainly vary between RINs, further complicating estimation and sacrificing interpretability. Whatever limitations the exclusion of these covariates might impose on the interpretation of our modelling results, they are much less of a concern for the event study models, which (as will be seen) correspond quite tightly to the VAR results. We do, however, re-run the D5 models with the Russel 3000 index and WTI oil price index as separate added covariates for robustness. Second, we deviate from authors like \cite{Knittel2017} in estimating VAR models for each RIN separately rather than a single per-gallon-of-gasoline RIN obligation, constructed as a pre-specified linear combination of RIN prices. Since the shocks in this study are to expectations regarding the final RIN obligations (including the weights of various RIN types), constructing a ``total obligation" is not straightforward; the expected end-of-year RIN obligation should vary with EPA announcements and that variation should affect both firm and RIN prices. Keeping things at the individual RIN level allows us to avoid imposing additional assumptions regarding how firms generate expectations of final obligations.
+A few modeling decisions should be explicitly mentioned. First, these models do not include any additional controls. The RIN price system is complex and nonlinear \citep{Serra2011}, and our intent is to determine more generally the presence or absence of any dynamic feedback between RINs and firm prices, not to unravel the complex and interwoven channels through which that feedback occurs. Relevant covariates would almost certainly vary between RINs, further complicating estimation and sacrificing interpretability. Whatever limitations the exclusion of these covariates might impose on the interpretation of our modelling results, they are much less of a concern for the event study models, which (as will be seen) correspond quite tightly to the VAR results. We do, however, re-run the D5 models with the Russel 3000 index and WTI oil price index as separate added covariates for robustness. Second, we deviate from authors like \cite{Knittel2017} in estimating VAR models for each RIN separately rather than a single per-gallon-of-gasoline RIN obligation, constructed as a pre-specified linear combination of RIN prices. Since the shocks in this study are to expectations regarding the final RIN obligations (including the weights of the  RIN types), constructing a ``total obligation" is not straightforward; the expected makeup of the end-of-year RIN obligation should vary with EPA announcements and that variation should affect both firm and RIN prices. Keeping things at the individual RIN level allows us to avoid imposing additional assumptions regarding how firms generate expectations of final obligations.
 
 Our bivariate time series models illuminate interactions between RIN markets and firm stock prices. Because the relationship of interest is the impact of the RFS on refining firms, the analysis and results reported below will focus on the differenced RIN lag parameters ($\phi_{1,2}^l$ for $l=1,\dots,m$) in the equation modeling movements in firm stock prices, i.e., the first line of Equation \ref{var}. Tables \ref{d6timeseries}, \ref{d5timeseries}, and \ref{d4timeseries} report parameter estimates and significance levels for the autoregressive coefficients $\phi_{1,2}^l$ and regression constants for 36 total regressions covering every Firm $\times$ RIN pair. Also reported in the aforementioned tables are observation counts (varying slightly between models depending on lag lengths) and test statistics for three tests of model assumptions. Included among these three are the Ljung-Box test for autocorrelation among the residuals and the Jarque-Bera and Shapiro-Wilk tests for normality of the error term.
 
 \subsection{Results}
 
-The results from bivariate time series analysis suggest that the impacts of RIN price movements are not homogeneous across firms. In fact, most small- and medium-size firms' values are not impacted by the lagged values of RIN prices. By contrast, large firms show negative reactions to RIN price movements after a few lags. This is especially evident in results from D5 bivariate modeling in Table \ref{d5timeseries}, where Chevron (CVX), British Petroleum (BP), Shell (RDS.A), and Total (TOT) all have negative fourth lag terms significant at the 5\% level. Exxon Mobil (XOM), the only remaining large market cap firm in the data, is also negatively associated with D5 RINs, but only at the 10\% significance level. The fact that only large firms exhibit significant negative responses is not an artifact of the optimal lag selection procedure; reproductions of Tables \ref{d6timeseries}, \ref{d5timeseries}, and \ref{d4timeseries} for models that were forced to six lags are available in the appendix and have no major qualitative differences. Re-running the D5 models with either the Russel 3000 index or WTI oil price added as a covariate (forcing six lags across the board) similarly results in significant negative price responses at lags 4-5 for large firms and no others.
+The results from bivariate time series analysis suggest that the impacts of RIN price movements are not homogeneous across firms. In fact, most small- and medium-size firms' values are not impacted by the lagged values of RIN prices. By contrast, large firms show negative reactions to RIN price movements after a few lags. This is especially evident in results from D5 bivariate modeling in Table \ref{d5timeseries}, where Chevron (CVX), British Petroleum (BP), Shell (RDS.A), and Total (TOT) all have negative fourth lag terms significant at the 5\% level. Exxon Mobil (XOM), the only remaining large market cap firm in the data, is also negatively associated with D5 RINs, but only at the 10\% significance level. The fact that only large firms exhibit significant negative responses is not an artifact of the optimal lag selection procedure; reproductions of Tables \ref{d6timeseries}, \ref{d5timeseries}, and \ref{d4timeseries} for models that were forced to six lags are available in the appendix and have no major qualitative differences. Re-running the D5 models with either the Russel 3000 index or WTI oil price added as a covariate (forcing six lags across the board) similarly results in significant negative price responses at lags 4-5 for large firms and no others; these results are also available in the appendix.
 
 We can imagine what the time series models depicted here would predict as a response to two shocks, one of which dramatically dropped D6 RIN prices while having ambiguous effects on D5 and D4 RIN prices and the second of which sharply raised all three simultaneously. Though the event study and time series models measure different things and utilize different sources of variation, their results agree insofar as this prediction would closely mirror the event study results.
 
@@ -510,6 +510,42 @@ We use an established event study methodology and bivariate time series modeling
 	}
 	\begin{flushleft}
 		\scriptsize{Note: Column headers are stock tickers corresponding to firms as in Table \ref{bins}. Each column reports results from a VAR model as described in Equation \ref{var}. Lag order is forced to six. Significance at alpha levels of 0.1, 0.05, and 0.01 are reported with *, **, and ***, respectively.}\\
+	\end{flushleft}
+\end{table} 
+
+\newpage
+
+\subsection{Bivariate Time Series D5 Models with Covariates}
+
+\begin{table}[!htbp] \centering 
+	\caption{Bivariate Time Series Model with D5 RINs and RUS3000 Covariate} 
+	\label{d5timeseries6lags} 
+	\resizebox{\textwidth}{!}{
+		\begin{tabular}{@{\extracolsep{0pt}} lcccccccccccc} 
+			\hline 
+			\hline \\[-1.8ex] 
+			\input{tables/D5VARRUS3000_edited.tex}
+			\hline 
+		\end{tabular} 
+	}
+	\begin{flushleft}
+		\scriptsize{Note: Column headers are stock tickers corresponding to firms as in Table \ref{bins}. Each column reports results from a VAR model as described in Equation \ref{var} with the inclusion of the Russel 3000 index as a covariate. Lag order is forced to six. Significance at alpha levels of 0.1, 0.05, and 0.01 are reported with *, **, and ***, respectively.}\\
+	\end{flushleft}
+\end{table} 
+
+\begin{table}[!htbp] \centering 
+	\caption{Bivariate Time Series Model with D5 RINs and WTI Covariate} 
+	\label{d5timeseries6lags} 
+	\resizebox{\textwidth}{!}{
+		\begin{tabular}{@{\extracolsep{0pt}} lcccccccccccc} 
+			\hline 
+			\hline \\[-1.8ex] 
+			\input{tables/D5VARWTI_edited.tex}
+			\hline 
+		\end{tabular} 
+	}
+	\begin{flushleft}
+		\scriptsize{Note: Column headers are stock tickers corresponding to firms as in Table \ref{bins}. Each column reports results from a VAR model as described in Equation \ref{var} with the inclusion of the WTI oil price index as a covariate. Lag order is forced to six. Significance at alpha levels of 0.1, 0.05, and 0.01 are reported with *, **, and ***, respectively.}\\
 	\end{flushleft}
 \end{table} 
 
